@@ -10,7 +10,7 @@ from streamlit_option_menu import option_menu
 import plotly.express as px
 
 #request data from youtube
-api_key="AIzaSyBY2-2OWwhsWYLKMm7zPae4z17I4NRNjiI"
+api_key="your API key"
 api_service_name = "youtube"
 api_version = "v3"
 youtube =build(api_service_name, api_version, developerKey=api_key)
