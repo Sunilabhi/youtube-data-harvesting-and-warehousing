@@ -302,7 +302,7 @@ def view_comments_table():
         return df2
 
 #some example samples
-channel_details={"channel name":["Candy Crafts","Hari zone","Money Maven","Digital Sculler","techTFQ","HR_Navin","Udemy","Reeload Roast","Hareesh Rajendran","Tech Support Tamil"],
+channel_Details={"channel name":["Candy Crafts","Hari zone","Money Maven","Digital Sculler","techTFQ","HR_Navin","Udemy","Reeload Roast","Hareesh Rajendran","Tech Support Tamil"],
                  "channel ID":["UCYWXUZGfp9FpIeLeM5n_DEA","UCITaV_WWRm6bPzYhJZ5Jnmw","UCZpgNrd1zm5TXnO_3DsP2NQ","UCcskSCtpiScqJrHTqrqrmbg","UCnz-ZXXER4jOvuED5trXfEA","UC-O3_F-UpwzKvSkvO0DW9qg","UCzw4hbQIePVtyJQzE_F8QDg","UCCO1WTlxp8JTS4GqjxpDhdw","UCJQJAI7IjbLcpsjWdSzYz0Q","UCeJTusc2HHBFtdOpJ-xB8sw"]
                  }
 
@@ -361,6 +361,7 @@ if selected == "Extract and Transform":
             else:
                 insert=channel_details(channel_Id)
                 st.success(insert)
+                
         channel_IDS=st.table(df0)
 
         show_table=st.radio("select the table for view",("CHANNELS","VIDEOS","COMMENTS"))
