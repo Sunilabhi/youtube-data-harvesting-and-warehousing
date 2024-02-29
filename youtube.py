@@ -153,7 +153,11 @@ import pymongo
 Client=pymongo.MongoClient("mongodb://localhost:27017")
 db=Client["youtube"]
 
-#data migrate to monodb
+#python to MongoDB atlas
+#Client =pymongo.MongoClient("mongodb+srv://sunilshineyellow:sunil@cluster0.yqy2w0s.mongodb.net/?retryWrites=true&w=majority")
+#db=Client["youtube"]
+
+#data migrate to mongodb
 
 def channel_details(channel_id):
     channels= get_channel_details(channel_id)
@@ -175,7 +179,7 @@ mydb=sql.connect(host="localhost",
                 )
 cursor=mydb.cursor()
 
-# create table and soring channel details into mysql
+# create channels table in mysql
 def channels_table():
     drop_query='''drop table if exists channels'''
     cursor.execute(drop_query)
@@ -185,25 +189,8 @@ def channels_table():
     cursor.execute(create_query)
     mydb.commit()
 
-    ch_list=[]
-    db=Client["youtube"]
-    collections=db["channel_details"]
-    for ch_data in collections.find({},{"_id":0,"channel_info":1}):
-        ch_list.append(ch_data['channel_info'])
+# create videos table in mysql
 
-    df=pd.DataFrame(ch_list)
-
-    for index,row in df.iterrows():
-        insert_query='''insert into channels(channel_name,channel_id,subscription_count,channel_views,total_videos,channel_description,playlist_id)
-                                            values(%s,%s,%s,%s,%s,%s,%s)'''
-
-        values=(row['channel_name'],row['channel_id'],row['subscription_count'],row['channel_views'],row['total_videos'],row['channel_description'],
-                row['platlist_id'])
-
-        cursor.execute(insert_query,values)
-        mydb.commit()
-
-# create table and soring videos details into mysql
 def vidoes_table():
         drop_query='''drop table if exists videos'''
         cursor.execute(drop_query)
@@ -216,27 +203,7 @@ def vidoes_table():
         cursor.execute(create_query)
         mydb.commit()
 
-        vi_list=[]
-        db=Client["youtube"]
-        collections=db["channel_details"]
-        for vi_data in collections.find({},{"_id":0,"video_info":1}):
-                for i in range(len(vi_data['video_info'])):
-                        vi_list.append(vi_data['video_info'][i])
-        df1=pd.DataFrame(vi_list)
-
-        for index,row in df1.iterrows():
-                        insert_query='''insert into videos(Channel_name,video_id,video_name,video_description,published_at,view_count,
-                                                        like_count,favorite_count,comment_count,duration,thumnail,caption_status)
-                                                        values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
-
-                        values=(row['Channel_name'],row['video_id'],row['video_name'],row['video_description'],row['published_at'],
-                                row['view_count'],row['like_count'],row['favorite_count'],row['comment_count'],row['duration'],
-                                row['thumnail'],row['caption_status'])
-                        cursor.execute(insert_query,values)
-                        mydb.commit()
-
-# create table and soring comment details into mysql
-
+# create comments table mysql
 def comments_table():
         drop_query='''drop table if exists comments'''
         cursor.execute(drop_query)
@@ -247,29 +214,6 @@ def comments_table():
 
         cursor.execute(create_query)
         mydb.commit()
-
-        com_list=[]
-        db=Client["youtube"]
-        collections=db["channel_details"]
-        for com_data in collections.find({},{"_id":0,"comment_info":1}):
-                for i in range(len(com_data['comment_info'])):
-                        com_list.append(com_data['comment_info'][i])
-        df2=pd.DataFrame(com_list)
-
-        for index,row in df2.iterrows():
-                insert_query='''insert into comments(comment_id,video_id,comment_text,comment_author,comment_publistedAt)
-                                                values(%s,%s,%s,%s,%s)'''
-
-                values=(row['comment_id'],row['video_id'],row['comment_text'],row['comment_author'],row['comment_publistedAt'])
-
-                cursor.execute(insert_query,values)
-                mydb.commit()
-
-def tables():
-    channels_table()
-    vidoes_table()
-    comments_table()
-    return "create successfully"
 
 def view_channels_table():
     ch_list=[]
@@ -305,6 +249,60 @@ def view_comments_table():
 channel_Details={"channel name":["Candy Crafts","Hari zone","Money Maven","Digital Sculler","techTFQ","HR_Navin","Udemy","Reeload Roast","Hareesh Rajendran","Tech Support Tamil"],
                  "channel ID":["UCYWXUZGfp9FpIeLeM5n_DEA","UCITaV_WWRm6bPzYhJZ5Jnmw","UCZpgNrd1zm5TXnO_3DsP2NQ","UCcskSCtpiScqJrHTqrqrmbg","UCnz-ZXXER4jOvuED5trXfEA","UC-O3_F-UpwzKvSkvO0DW9qg","UCzw4hbQIePVtyJQzE_F8QDg","UCCO1WTlxp8JTS4GqjxpDhdw","UCJQJAI7IjbLcpsjWdSzYz0Q","UCeJTusc2HHBFtdOpJ-xB8sw"]
                  }
+df0=pd.DataFrame(channel_Details)
+#channel names
+def channel_names():
+    ch_name=[]
+    db=Client["youtube"]
+    collections=db["channel_details"]
+    for ch_data in collections.find({},{"_id":0,"channel_info":1}):
+        ch_name.append(ch_data['channel_info']['channel_name'])
+
+    return ch_name
+
+def migrate_data_to_mysql(user_inp):
+    db=Client["youtube"]
+    collection = db["channel_details"]
+
+    channel_data = collection.find_one({"channel_info.channel_name": user_inp})
+    if not channel_data:
+        print("No data found for the provided channel name.")
+        return
+
+    # Connect to MySQL
+    mydb=sql.connect(host="localhost",
+                        user="root",
+                        password="sunil",
+                        database="yt",
+                    )
+    cursor=mydb.cursor()
+
+    # Migrate channel details to MySQL
+    channel_info = channel_data["channel_info"]
+    cursor.execute("INSERT INTO channels VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                   (channel_info["channel_name"], channel_info["channel_id"], channel_info["subscription_count"],
+                    channel_info["channel_views"], channel_info["total_videos"], channel_info["channel_description"],
+                    channel_info["platlist_id"]))
+    mydb.commit()
+
+
+    # Migrate video details to MySQL
+    video_info = channel_data["video_info"]
+    for video in video_info:
+        cursor.execute("INSERT INTO videos VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                       (video["Channel_name"], video["video_id"], video["video_name"], video["video_description"],
+                        video["published_at"], video["view_count"], video["like_count"], video["favorite_count"],
+                        video["comment_count"], video["duration"], video["thumnail"], video["caption_status"]))
+    mydb.commit()
+
+    # Migrate comment details to MySQL
+    comment_info = channel_data["comment_info"]
+    for comment in comment_info:
+        cursor.execute("INSERT INTO comments VALUES (%s, %s, %s, %s, %s)",
+                       (comment["comment_id"], comment["video_id"], comment["comment_text"], comment["comment_author"],
+                        comment["comment_publistedAt"]))
+    mydb.commit()
+
 
 # streamlit
 
@@ -375,11 +373,18 @@ if selected == "Extract and Transform":
         elif show_table=="COMMENTS":
             view_comments_table()
 
-    with tab2:
-        if st.button("migrate to mysql"):
-            Table=tables()
-            st.success(Table)
-            st.success("Transformation to MySQL Successful!!!")
+    with tab2:     
+        st.markdown("#   ")
+        st.markdown("### Select a channel to begin Transformation to SQL")
+        ch_names = channel_names()
+        user_inp = st.selectbox("Select channel",options= ch_names)
+
+        if st.button("Submit"):
+            try:
+                migrate_data_to_mysql(user_inp )
+                st.success("Transformation to MySQL Successful!!!")
+            except:
+                st.error("Channel details already transformed!!")
 
 
 
@@ -499,14 +504,14 @@ if selected == "Query":
         st.write(df)
 
     elif questions == '10. Which videos have the highest number of comments, and what are their corresponding channel names?':
-        cursor.execute("""SELECT channel_name AS Channel_Name,comment_count AS Comment FROM videos ORDER BY comment_count DESC
+        cursor.execute("""SELECT channel_name AS Channel_Name,video_name AS Title,comment_count AS Comment FROM videos ORDER BY comment_count DESC
                             LIMIT 10""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names,index=[1,2,3,4,5,6,7,8,9,10])
         st.write(df)
         st.write("### :green[Videos with most comments :]")
         fig = px.bar(df,
                         x=cursor.column_names[0],
-                        y=cursor.column_names[1],
+                        y=cursor.column_names[2],
                         orientation='v',
                         color=cursor.column_names[0]
                     )
