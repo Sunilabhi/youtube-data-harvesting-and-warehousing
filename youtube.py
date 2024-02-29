@@ -192,28 +192,28 @@ def channels_table():
 # create videos table in mysql
 
 def vidoes_table():
-        drop_query='''drop table if exists videos'''
-        cursor.execute(drop_query)
-        mydb.commit()
+    drop_query='''drop table if exists videos'''
+    cursor.execute(drop_query)
+    mydb.commit()
 
-        create_query='''create table if not exists videos(Channel_name varchar(100), video_id varchar(255) primary key,
-                                                        video_name varchar(255),video_description text,published_at datetime,
-                                                        view_count bigint,like_count bigint,favorite_count int,comment_count bigint,
-                                                        duration time,thumnail varchar(500),caption_status varchar(255))'''
-        cursor.execute(create_query)
-        mydb.commit()
+    create_query='''create table if not exists videos(Channel_name varchar(100), video_id varchar(255) primary key,
+                                                    video_name varchar(255),video_description text,published_at datetime,
+                                                    view_count bigint,like_count bigint,favorite_count int,comment_count bigint,
+                                                    duration time,thumnail varchar(500),caption_status varchar(255))'''
+    cursor.execute(create_query)
+    mydb.commit()
 
 # create comments table mysql
 def comments_table():
-        drop_query='''drop table if exists comments'''
-        cursor.execute(drop_query)
-        mydb.commit()
+    drop_query='''drop table if exists comments'''
+    cursor.execute(drop_query)
+    mydb.commit()
 
-        create_query='''create table if not exists comments(comment_id VARCHAR(255) PRIMARY KEY,video_id VARCHAR(255),
-                                                        comment_text TEXT,comment_author VARCHAR(150),comment_publistedAt datetime)'''
+    create_query='''create table if not exists comments(comment_id VARCHAR(255) PRIMARY KEY,video_id VARCHAR(255),
+                                                    comment_text TEXT,comment_author VARCHAR(150),comment_publistedAt datetime)'''
 
-        cursor.execute(create_query)
-        mydb.commit()
+    cursor.execute(create_query)
+    mydb.commit()
 
 def view_channels_table():
     ch_list=[]
